@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="520" viewBox="0 0 1080 520" role="img" aria-label="Receipt chain: extract fields, check arithmetic, reread doubtful receipts once with enlarged views, then sum amounts in Python">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#536271"/></marker></defs>
+<rect width="1080" height="520" fill="white"/>
+<g font-family="Arial, sans-serif" fill="#202a34">
+<text x="38" y="39" font-size="21" font-weight="bold">Receipt chain</text>
+<text x="38" y="65" font-size="15" fill="#536271">Each receipt is processed independently; at most two run at once.</text>
+<g fill="#f4f7f9" stroke="#b3c1cb" stroke-width="1.5">
+<rect x="38" y="99" width="178" height="100" rx="7"/>
+<rect x="265" y="99" width="360" height="100" rx="7"/>
+<rect x="676" y="99" width="365" height="100" rx="7"/>
+<rect x="676" y="261" width="365" height="100" rx="7"/>
+<rect x="265" y="261" width="360" height="100" rx="7"/>
+<rect x="265" y="421" width="776" height="64" rx="7"/>
+</g>
+<g text-anchor="middle" font-size="16">
+<text x="127" y="139" font-weight="bold">Receipt image</text><text x="127" y="168">Base64 data URL</text>
+<text x="445" y="131" font-weight="bold">LangChain extraction</text><text x="445" y="158">deepseek-v4-flash-vision-exp</text><text x="445" y="181">Prompt + image → JSON fields</text>
+<text x="858" y="131" font-weight="bold">Python checks</text><text x="858" y="158">Items − discounts = subtotal</text><text x="858" y="181">Subtotal + rounding = payment</text>
+<text x="858" y="294" font-weight="bold">One targeted reread</text><text x="858" y="321">Arithmetic feedback + enlarged views</text><text x="858" y="344">Same model; no further loop</text>
+<text x="445" y="294" font-weight="bold">Select the receipt amounts</text><text x="445" y="321">Use a checked reading when possible</text><text x="445" y="344">Warn if checks remain unresolved</text>
+<text x="653" y="448" font-weight="bold">Sum with Decimal → two HKD responses → supplied CSV writer</text>
+<text x="653" y="472" font-size="14">Q1: sum(payment)     |     Q2: sum(subtotal + discounts); rounding is never added back</text>
+</g>
+<g fill="none" stroke="#536271" stroke-width="2" marker-end="url(#arrow)">
+<path d="M216 149 H260"/><path d="M625 149 H671"/>
+<path d="M858 199 V256"/>
+<path d="M676 310 H630"/>
+<path d="M716 199 V226 H445 V256"/>
+<path d="M445 361 V416"/>
+</g>
+<g font-size="13" fill="#536271"><text x="870" y="239">Needs checking</text><text x="470" y="219">Checks pass</text></g>
+<text x="39" y="288" font-size="14" fill="#536271">No usable reading?</text><text x="39" y="311" font-size="14" fill="#536271">Write an error response.</text><text x="39" y="334" font-size="14" fill="#536271">Do not report partial sums.</text>
+</g></svg>
