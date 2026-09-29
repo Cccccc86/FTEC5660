@@ -19,7 +19,7 @@
 <text x="858" y="294" font-weight="bold">One targeted reread</text><text x="858" y="321">Arithmetic feedback + enlarged views</text><text x="858" y="344">Same model; no further loop</text>
 <text x="445" y="294" font-weight="bold">Select the receipt amounts</text><text x="445" y="321">Use a checked reading when possible</text><text x="445" y="344">Warn if checks remain unresolved</text>
 <text x="653" y="448" font-weight="bold">Sum with Decimal → two HKD responses → supplied CSV writer</text>
-<text x="653" y="472" font-size="14">Q1: sum(payment)     |     Q2: sum(subtotal + discounts); rounding is never added back</text>
+<text x="653" y="472" font-size="14">Q1: sum(payment)     |     Q2: sum(original item line totals); rounding is not an item</text>
 </g>
 <g fill="none" stroke="#536271" stroke-width="2" marker-end="url(#arrow)">
 <path d="M216 149 H260"/><path d="M625 149 H671"/>

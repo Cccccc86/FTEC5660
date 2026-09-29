@@ -195,7 +195,7 @@ def answer_queries(chain: Any, images: list[Path]) -> dict[str, Any]:
                 if value is None:
                     raise ValueError("A receipt line was unreadable")
                 if field == "discounts":
-                    # A negative sign is harmless here; it denotes a reduction.
+                    # Store each discount as a positive amount.
                     value = abs(value)
                 if value < zero:
                     raise ValueError("Original item amounts must be nonnegative")
@@ -214,16 +214,16 @@ def answer_queries(chain: Any, images: list[Path]) -> dict[str, Any]:
         if paid < zero:
             raise ValueError("Negative purchase payment")
         issues = []
-        if abs(paid - expected_paid) > cent:
+        if paid != expected_paid:
             issues.append(f"Payment {paid} differs from subtotal plus rounding {expected_paid}")
-        if not data["items"] or abs(items - discounts - subtotal) > cent:
+        if not data["items"] or items - discounts != subtotal:
             issues.append(f"Items sum to {items}, discounts sum to {discounts}, and printed "
                           f"subtotal is {subtotal}; items minus discounts minus subtotal "
                           f"is {items - discounts - subtotal}, which should be zero")
         if data["uncertain"]:
             issues.append("The extraction marked some text as uncertain")
-        # The assignment defines the second answer from SUBTOTAL, not payment.
-        return (paid, subtotal + discounts), issues
+        # Sum the original item prices; discounts are a cross-check.
+        return (paid, items), issues
 
     def read_receipt(path):
         try:
@@ -237,8 +237,7 @@ def answer_queries(chain: Any, images: list[Path]) -> dict[str, Any]:
             try:
                 detail_images = []
                 if attempt:
-                    # Overlapping enlarged views help with small or blurred digits.
-                    # Crop by image dimensions only; no receipt-specific coordinates.
+                    # Enlarge overlapping sections to check small digits.
                     with Image.open(path) as source:
                         picture = ImageOps.exif_transpose(source).convert("RGB")
                         width, height = picture.size
@@ -253,7 +252,7 @@ def answer_queries(chain: Any, images: list[Path]) -> dict[str, Any]:
                             detail_images.append("data:image/jpeg;base64," + base64.b64encode(buffer.getvalue()).decode("ascii"))
                 raw = chain.invoke({"image": image, "detail_images": detail_images, "feedback": feedback})
                 text = response_text(raw).strip()
-                # Accept a fenced JSON response without attempting to execute it.
+                # Remove Markdown fences before parsing JSON.
                 if text.startswith("```"):
                     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.IGNORECASE)
                 data = json.loads(text)
@@ -273,7 +272,7 @@ def answer_queries(chain: Any, images: list[Path]) -> dict[str, Any]:
                     "a line twice because it appears in two views."
                 )
             except Exception as exc:
-                # Do not print provider exception bodies: they can contain request data.
+                # Log the error type without exposing request data.
                 kind = type(exc).__name__
                 print(f"Receipt {path.name}: {kind} on extraction attempt {attempt + 1}.", file=sys.stderr)
                 if kind in {"AuthenticationError", "PermissionDeniedError", "NotFoundError"}:
@@ -288,7 +287,7 @@ def answer_queries(chain: Any, images: list[Path]) -> dict[str, Any]:
             return best[1]
         return None
 
-    # Independent images share one stateless chain, with a small concurrency limit.
+    # Process at most two receipts at once.
     with ThreadPoolExecutor(max_workers=2) as pool:
         amounts = list(pool.map(read_receipt, images))
     if any(result is None for result in amounts):
